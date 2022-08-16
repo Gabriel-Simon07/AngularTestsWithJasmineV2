@@ -1,4 +1,5 @@
-import { async, ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { Key } from 'protractor';
 import { PhotoFrameComponent } from './photo-frame.component';
 import { PhotoFrameModule } from './photo-frame.module';
 
@@ -42,11 +43,63 @@ describe(PhotoFrameComponent.name, () => {
     expect(times).toBe(2);
   }));
 
-  it(`Should display number of likes when likes (@Output likes) is incremented`,() => {
+  it(`(D) Should display number of likes when likes (@Output likes) is incremented`,() => {
     fixture.detectChanges();
     component.likes++;
     fixture.detectChanges();
     const element: HTMLSpanElement = fixture.nativeElement.querySelector('.like-counter');
     expect(element.textContent.trim()).toBe('1');
+  });
+
+  it(`(D) Should update aria-label when (@Input likes) is incremented`, () => {
+    fixture.detectChanges();
+    component.likes++;
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement.querySelector('span');
+    expect(element.getAttribute('aria-label')).toBe('1: people liked');
+  });
+
+  it(`(D) Should hava aria-label with 0 (@Input likes)`, () => {
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement.querySelector('span');
+    expect(element.getAttribute('aria-label')).toBe('0: people liked');
+  });
+
+  it(`(D) Should display image with src and description when bound to properties`, done => {
+    const description = 'some description';
+    const src = 'http://somesite.com/img.jpg';
+    component.src = src;
+    component.description = description;
+    fixture.detectChanges();
+    const img: HTMLImageElement = fixture.nativeElement.querySelector('img');
+    expect(img.getAttribute('src')).toBe(src);
+    expect(img.getAttribute('alt')).toBe(description);
+    done();
+  });
+
+  it(`(D) Should display number of likes when clicked`, () => {
+    fixture.detectChanges();
+    component.liked.subscribe(() => {
+      component.likes++;
+      fixture.detectChanges();
+      const counterElement = HTMLElement = fixture.nativeElement.querySelector('.like-counter');
+      expect(counterElement.textContent.trim()).toBe('1');
+    });
+    const likeWidgetContainer: HTMLElement = fixture.nativeElement.querySelector('.like-widget-container');
+    likeWidgetContainer.click();
+  });
+
+  it(`(D) Should display number of likes when ENTER key is pressed`, done => {
+    fixture.detectChanges();
+    component.liked.subscribe(() => {
+      component.likes++;
+      fixture.detectChanges();
+      const counterElement = HTMLElement = fixture.nativeElement.querySelector('.like-counter');
+      expect(counterElement.textContent.trim()).toBe('1');
+      done();
+    });
+    const likeWidgetContainer: HTMLElement = fixture.nativeElement.querySelector('.like-widget-container');
+    const event = new KeyboardEvent('keyup', {key: 'Enter'});
+    likeWidgetContainer.dispatchEvent(event);
   });
 });
