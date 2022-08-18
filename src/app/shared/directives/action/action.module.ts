@@ -7,6 +7,4 @@ import { ActionDirective } from './action.directive';
   imports: [CommonModule],
   exports: [ActionDirective]
 })
-export class ActionModule {
-
-}
+export class ActionDirectiveModule {}
